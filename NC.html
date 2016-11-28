@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>A D3 map</title>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+  <script src="//d3js.org/topojson.v1.min.js"></script>
+  <style>
+    path:hover {
+      fill: #ccc
+    }
+    .district {
+      fill: #abc
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    var width = 1600,
+        height = 900;
+
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+    var projection = d3.geo.mercator()
+                           .center([-80.6382, 35.7796])   //TODO - dynamic based on state
+                           .scale(7000)
+
+
+    var path = d3.geo.path()
+                     .projection(projection)
+
+    d3.json("data3.json", function(error, data3) {
+      if (error) return console.error(error);
+      console.log(data3);
+
+      var myData = topojson.feature(data3, data3.objects.data2)
+
+      svg.append("path")
+            .datum(myData)
+            .attr("d", path)
+
+      svg.selectAll(".geometries")
+         .data(myData.features)
+         .enter()
+         .append("path")
+         .attr("class", function(d) { return "district " + d.id; })
+         .attr("d", path);
+    });
+
+  </script>
+</body>
+</html>
