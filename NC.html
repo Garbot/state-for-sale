@@ -1,18 +1,35 @@
 <html>
 <head>
   <title>A D3 map</title>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
   <script
     src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
     crossorigin="anonymous"></script>
   <script src="//d3js.org/topojson.v1.min.js"></script>
   <style>
+  /*
+    path:nth-child(1n) {
+      fill: #abc
+    }
+    path:nth-child(2n) {
+      fill: #cab
+    }
+    path:nth-child(3n) {
+      fill: #bca
+    }
+    path:nth-child(4n) {
+      fill: #cba
+    }
+    path:nth-child(5n) {
+      fill: #acb
+    }
+    path:nth-child(6n) {
+      fill: #bac
+    }
+*/
     path:hover {
       fill: #ccc
-    }
-    .district {
-      fill: #abc
     }
   </style>
 </head>
@@ -27,31 +44,97 @@
                 .attr("width", width)
                 .attr("height", height);
 
-    var projection = d3.geo.mercator()
+    var projection = d3.geoMercator()
                            .center([-80.6382, 35.7796])   //TODO - dynamic based on state
-                           .scale(7000)
+                           .scale(7000);
+
+    var state_map;
+/*
+    var color = d3.scaleThreshold()
+                  .domain(d3.range(2, 10))
+                  .range(d3.schemeBlues[9]);
+*/
+    var path = d3.geoPath()
+                 .projection(projection)
+
+    //load geography data first, then campaign finance data
+    d3.queue()
+      .defer(d3.json, "data3.json")
+      .defer(d3.json, "money.json")
+      .await(drawMap)
 
 
-    var path = d3.geo.path()
-                     .projection(projection)
 
-    d3.json("data3.json", function(error, data3) {
+
+    function drawMap(error, data3, money) {
       if (error) return console.error(error);
       console.log(data3);
 
-      var myData = topojson.feature(data3, data3.objects.data2)
+      var myData = [topojson.feature(data3, data3.objects.data2), money]
 
-      svg.append("path")
-            .datum(myData)
-            .attr("d", path)
+      state_map = svg.append("path")
+               .datum(myData)
+               .attr("d", path)
 
-      svg.selectAll(".geometries")
-         .data(myData.features)
+
+
+      var districts = svg.selectAll(".geometries")
+         .data(myData[0].features)
          .enter()
          .append("path")
-         .attr("class", function(d) { return "district " + d.id; })
-         .attr("d", path);
+         .attr("class", function(d) {
+            //add district # (d.properties.BASENAME) as HTML class to each district path
+            console.log(d)
+            return d.properties.BASENAME;
+          })
+         .attr("d", path)
+         .attr("stroke", "#000")
+         .attr("fill", function(d){
+           return "#abc"
+         });
+
+/*
+     var rodents = svg.append( "g" );
+
+     rodents.selectAll( "path" )
+       .data( rodents_json.features )
+       .enter()
+       .append( "path" )
+       .attr( "fill", "#900" )
+       .attr( "stroke", "#999" )
+       .attr( "d", geoPath )
+       .on( "click", function(){
+         d3.select(this).remove();
+       }); //basic event listener = .on()
+*/
+
+    };
+
+    function addData(error, json){
+      //see format of json
+      data = json.records;
+      console.log(data)
+
+      svg.selectAll("geometries")
+               .data(data, function(d){return d['Target_District'].id})
+               .append
+    };
+
+    function quantize(d) {
+      return console.log(d);
+    }
+    /*
+    d3.json("money.json", function(error, money) {
+      if (error) return console.error(error);
+      console.log(money)
+
+      svg.selectAll("district")
+         .data(money)
+         .attr("fill", function(d){
+           return d.class
+         })
     });
+    */
 
   </script>
 </body>

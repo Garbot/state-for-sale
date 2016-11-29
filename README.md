@@ -29,3 +29,6 @@ The plan is to take this data and make a website that presents it in a more user
 * http://jsonprettyprint.com/
 * https://bost.ocks.org/mike/map/
 * http://bl.ocks.org/mbostock/4060606
+
+* https://github.com/maptimeBoston/d3-maptime
+^^ error with loading HTTP over HTTPS on the boston maps - pull and fix :)
