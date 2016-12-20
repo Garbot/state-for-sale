@@ -18,13 +18,16 @@ def re_int(string):
 
 
 # create output TSV sorted and cleaned
-readfile = csv.reader(open('money.tsv'),delimiter='\t')
+readfile = csv.reader(open('ncga-independent.tsv'),delimiter='\t')
 
 
 # writefile = csv.reader(open('new.tsv'),delimiter='\t')
 with open('new.tsv', 'w', newline='') as myTSV:
     writefile = csv.writer(myTSV,delimiter='\t')
     for row in readfile:
-        parsed_district = re_int(row[2])
-        if(parsed_district != 0):
-            writefile.writerow([parsed_district, row[5]])
+        try:
+            parsed_district = re_int(row[2])
+            if(parsed_district != 0):
+                writefile.writerow([parsed_district, row[5]])
+        except (IndexError):
+            pass
